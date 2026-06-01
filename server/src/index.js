@@ -8,27 +8,22 @@ import authRoutes from "./routes/auth.routes.js";
 import documentRoutes from "./routes/document.routes.js";
 const app = express();
 
-const allowedOrigins = (
-  process.env.CLIENT_URLS ||
-  process.env.CLIENT_URL ||
-  "http://localhost:3000"
-)
-  .split(/[;,\s]+/)
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const corsOptions = {
+  origin: [
+    'http://localhost:3000', // Để test local
+    'https://collab-app-git-develop-lamnguyen-husts-projects.vercel.app', // Domain Vercel của bạn
+    'https://collab-app-sand.vercel.app' // Thêm domain chính thức nếu có
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // Nếu bạn dùng cookies hoặc sessions
+};
+
+
+
 
 // Core middleware
 app.use(helmet());
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error(`Origin ${origin} is not allowed by CORS`));
-    },
-    credentials: true,
-  }),
-);
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
