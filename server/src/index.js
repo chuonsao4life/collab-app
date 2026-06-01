@@ -8,11 +8,20 @@ import authRoutes from './routes/auth.routes.js';
 import documentRoutes from './routes/document.routes.js';
 const app = express();
 
+const allowedOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(/[;,\s]+/)
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 // Core middleware
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
     credentials: true,
   })
 );
